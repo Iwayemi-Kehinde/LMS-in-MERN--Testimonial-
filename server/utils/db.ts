@@ -9,6 +9,6 @@ export const connectDB = async () => {
     console.log(`Database connected successfully ${data.connection.host}`)
   } catch (error: any) {
     console.log(error.message)
-    setTimeout(connectDB, 5000000)
+    setTimeout(connectDB, 5000)
   }
 }
