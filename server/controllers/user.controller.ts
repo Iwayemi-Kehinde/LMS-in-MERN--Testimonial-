@@ -1,7 +1,7 @@
 require("dotenv").config()
 import { Request, Response, NextFunction } from 'express'
 import jwt, { Secret } from "jsonwebtoken"
-import userModel from '../models/user.model'
+import userModel, { IUser } from '../models/user.model'
 import { ErrorHandler } from '../utils/ErrorHandler'
 import sendActivationMail from '../utils/sendMail'
 
@@ -48,4 +48,27 @@ export const createActivationToken = (user: any): IActivationToken => {
   const activationCode = Math.floor(1000 + Math.random() * 9000).toString()
   const activationToken = jwt.sign({ user, activationCode }, process.env.ACCESS_TOKEN as Secret, { expiresIn: "10m" })
   return { activationCode, activationToken }
+}
+
+
+interface IActivationRequest {
+  activationCode: string,
+  activationToken: string
+}
+export const activateUser = async (req:Request, res:Response, next:NextFunction) => {
+  const {activationCode, activationToken} = req.body as IActivationRequest
+  const newUser = jwt.verify(activationToken, process.env.ACCESS_TOKEN as Secret) as {activationCode: string, user: IUser}
+  if(newUser.activationCode !== activationCode) {
+    return next(new ErrorHandler("Invalid OTP", 400))
+  }
+  const {name, email, password} = newUser.user
+  const user = await userModel.create({
+    name,
+    email,
+    password
+  })
+  res.status(200).json({
+    message: "User created sucessfully",
+    user
+  })
 }

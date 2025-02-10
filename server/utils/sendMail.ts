@@ -19,11 +19,7 @@ const sendActivationMail = async (name: string, email: string, activationCode: s
     html: `
           <div style="padding: 20px; border: 2px solid #4CAF50; text-align: center;">
         <h2 style="color: #333;">Welcome, ${name}!</h2>
-        <p style="color: #666;">Click the button below to activate your account:</p>
-        <a href="https://yourwebsite.com/activate?code=${activationCode}"
-           style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none;">
-          Activate Account
-        </a>
+        <p style="color: #666;">${activationCode}</p>
       </div>
     `
   }
