@@ -1,12 +1,15 @@
 require("dotenv").config()
 import express, {Request, Response, NextFunction} from "express"
 import cors from "cors"
-import { ErrorHandler } from "./utils/ErrorHandler"
+import userRouter from "./routes/user.route"
 export const app = express()
 app.use(cors({
   origin: ["http://localhost:5173"],
   credentials: true
 }))
+app.use(express.json())
+
+app.use("/api/v1", userRouter)
 
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
