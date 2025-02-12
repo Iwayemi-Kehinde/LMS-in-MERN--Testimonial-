@@ -4,6 +4,7 @@ import jwt, { Secret } from "jsonwebtoken"
 import userModel, { IUser } from '../models/user.model'
 import { ErrorHandler } from '../utils/ErrorHandler'
 import sendActivationMail from '../utils/sendMail'
+import { sendToken } from '../utils/sendToken'
 
 
 interface RegistrationBody {
@@ -55,13 +56,13 @@ interface IActivationRequest {
   activationCode: string,
   activationToken: string
 }
-export const activateUser = async (req:Request, res:Response, next:NextFunction) => {
-  const {activationCode, activationToken} = req.body as IActivationRequest
-  const newUser = jwt.verify(activationToken, process.env.ACCESS_TOKEN as Secret) as {activationCode: string, user: IUser}
-  if(newUser.activationCode !== activationCode) {
+export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { activationCode, activationToken } = req.body as IActivationRequest
+  const newUser = jwt.verify(activationToken, process.env.ACCESS_TOKEN as Secret) as { activationCode: string, user: IUser }
+  if (newUser.activationCode !== activationCode) {
     return next(new ErrorHandler("Invalid OTP", 400))
   }
-  const {name, email, password} = newUser.user
+  const { name, email, password } = newUser.user
   const user = await userModel.create({
     name,
     email,
@@ -71,4 +72,30 @@ export const activateUser = async (req:Request, res:Response, next:NextFunction)
     message: "User created sucessfully",
     user
   })
+}
+
+
+interface ILoginRequest {
+  email: string;
+  password: string
+}
+
+export const LoginUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password } = req.body as ILoginRequest
+    if (!email || !password) {
+      return next(new ErrorHandler("Fill in all fields", 400))
+    }
+    const user = await userModel.findOne({ email }).select("password")
+    if (!user) {
+      return next(new ErrorHandler("Account does not exist", 404))
+    }
+    const isPasswordMatch = await user.comparePassword(password)
+    if (!isPasswordMatch) {
+      return next(new ErrorHandler("Password incorrect", 500))
+    }
+    sendToken(user, 200, res)
+  } catch (err: any) {
+    return next(new ErrorHandler(err.message, 500))
+  }
 }
