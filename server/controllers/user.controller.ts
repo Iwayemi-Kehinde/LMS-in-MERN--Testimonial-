@@ -5,6 +5,7 @@ import userModel, { IUser } from '../models/user.model'
 import { ErrorHandler } from '../utils/ErrorHandler'
 import sendActivationMail from '../utils/sendMail'
 import { sendToken } from '../utils/sendToken'
+import { redis } from '../utils/redis'
 
 
 interface RegistrationBody {
@@ -99,3 +100,67 @@ export const LoginUser = async (req: Request, res: Response, next: NextFunction)
     return next(new ErrorHandler(err.message, 500))
   }
 }
+
+interface IReq extends Request {
+  user: {
+    _id: any
+  }
+}
+
+export const LogoutUser = async (req: IReq, res: Response, next: NextFunction) => {
+  try {
+    res.cookie("access_token", "")
+    res.cookie("refresh_token", "")
+    redis.del(req.user?._id || "")
+    res.status(200).json({
+      success: true,
+      message: "Logout successful"
+    })
+  } catch (error: any) {
+    return next(new ErrorHandler("Logout Failed", 500))
+  }
+}
+
+
+export const updateAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const refresh_token = req.cookies.refresh_token
+    const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN as Secret)
+    const message = "could not refresh token"
+    if (!decoded) {
+      return next(new ErrorHandler(message, 400))
+    }
+    const session: any = await redis.get(decoded.id as string)
+    const user = JSON.parse(session)
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN as Secret, {
+      expiresIn: "5m"
+    })
+
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN as Secret, {
+      expiresIn: "3d",
+    })
+
+    req.user = user
+
+
+    res.cookie("access_token", accessToken, {
+      expires: new Date(Date.now() + 60000 * 5),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    })
+
+    res.cookie("refresh_token", refreshToken, {
+      expires: new Date(Date.now() + 60000 * 60 * 24 * 3),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    })
+
+    await redis.set(user._id as any, JSON.stringify(user))
+
+    next()
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+} 
