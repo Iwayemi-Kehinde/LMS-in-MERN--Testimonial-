@@ -6,6 +6,7 @@ import { ErrorHandler } from '../utils/ErrorHandler'
 import sendActivationMail from '../utils/sendMail'
 import { sendToken } from '../utils/sendToken'
 import { redis } from '../utils/redis'
+import { CustomRequest } from '../middleware/auth'
 
 
 interface RegistrationBody {
@@ -101,13 +102,7 @@ export const LoginUser = async (req: Request, res: Response, next: NextFunction)
   }
 }
 
-interface IReq extends Request {
-  user: {
-    _id: any
-  }
-}
-
-export const LogoutUser = async (req: IReq, res: Response, next: NextFunction) => {
+export const LogoutUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     res.cookie("access_token", "")
     res.cookie("refresh_token", "")
@@ -122,10 +117,10 @@ export const LogoutUser = async (req: IReq, res: Response, next: NextFunction) =
 }
 
 
-export const updateAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+export const updateAccessToken = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const refresh_token = req.cookies.refresh_token
-    const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN as Secret)
+    const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN as Secret) as any
     const message = "could not refresh token"
     if (!decoded) {
       return next(new ErrorHandler(message, 400))
@@ -141,8 +136,7 @@ export const updateAccessToken = async (req: Request, res: Response, next: NextF
     })
 
     req.user = user
-
-
+    
     res.cookie("access_token", accessToken, {
       expires: new Date(Date.now() + 60000 * 5),
       httpOnly: true,
@@ -157,10 +151,11 @@ export const updateAccessToken = async (req: Request, res: Response, next: NextF
       sameSite: "lax"
     })
 
-    await redis.set(user._id as any, JSON.stringify(user))
+    await redis.set(user._id as any, JSON.stringify(user), "EX", 604800)
 
     next()
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 500))
   }
 } 
+

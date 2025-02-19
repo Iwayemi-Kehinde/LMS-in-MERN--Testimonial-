@@ -1,27 +1,35 @@
-import { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken"
+import {NextFunction, Request, Response } from "express";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken"
 import { ErrorHandler } from "../utils/ErrorHandler";
+import { redis } from "../utils/redis";
+import { updateAccessToken } from "../controllers/user.controller";
 
-export const isAuthenticated = async (req: Request, res:Response, next:NextFunction) => {
-  const access_token = req.cookies.access_token
-  if(!access_token) {
-    return next(new ErrorHandler("Please login to access this resource", 404))
-  }
-  const decoded = jwt.decode(access_token) as JwtPayload
-  if(!decoded){
-    return next(new ErrorHandler("Access token is not valid", 400))
-  }
 
-  //check if the access token has expired
-  if(decoded.exp && decoded.exp > Date.now() / 1000) {
-    try {
-      
-    } catch (error) {
-      
-    }
-  }
+export interface CustomRequest extends Request {
+  user: any
 }
 
-/**
- * what is the esseence of JWT.decode()
- */
+export const isAuthenticated = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  const access_token = req.cookies.access_token
+  if(!access_token) {
+    return next(new ErrorHandler("Please Login to access this resource", 401))
+  }
+  const decoded = jwt.verify(access_token, process.env.access_token as Secret) as JwtPayload
+  if(!decoded){
+    return next(new ErrorHandler("Please Login to access this resource", 401))
+  }
+  if (decoded.exp && decoded.exp <= Date.now() / 1000) {
+    try{
+      await updateAccessToken(req, res, next)
+    } catch (err: any) {
+      console.log("An error occured " + err.message)
+    }
+  } else {
+    const user = await redis.get(decoded.id)
+    if (!user) {
+      return next(new ErrorHandler("User does not exist", 404))
+    }
+    req.user = JSON.parse(user)
+    next()
+  }
+} 
