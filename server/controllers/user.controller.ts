@@ -30,6 +30,8 @@ export const registrationUser = async (req: Request, res: Response, next: NextFu
   }
 
   const activationToken = createActivationToken(user)
+
+  
   const data = { user: { name: user.name, email: user.email, activationToken: activationToken.activationCode } }
   try {
     await sendActivationMail(data.user.name, data.user.email, data.user.activationToken)
@@ -273,12 +275,54 @@ export const updateProfilePicture = async (req: CustomRequest, res: Response, ne
 
 export const getAllUsers = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const allUser = userModel.find().sort({createdAt: -1})
+    const allUser = userModel.find().sort({ createdAt: -1 })
     res.status(200).json({
       success: true,
       allUser
     })
-  } catch(error: any) {
+  } catch (error: any) {
     return next(new ErrorHandler(error.message, 500))
+  }
+}
+
+export const updateUserRole = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  try {
+    const { email, role } = req.body
+    const isUserExist = await userModel.findOne({ email })
+    if (isUserExist) {
+      const id = isUserExist._id
+      const user = await userModel.findByIdAndUpdate(id, { role }, { new: true })
+      res.status(200).json({
+        success: true,
+        user
+      })
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "User not found"
+      })
+    }
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400))
+  }
+}
+
+
+
+export const deleteUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.body
+    const user = await userModel.findById(id)
+    if (!user) {
+      return next(new ErrorHandler("user not found", 500))
+    }
+    await user.deleteOne({ id })
+    await redis.del(id)
+    res.status(201).json({
+      success: true,
+      message: "User deleted successfully"
+    })
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400))
   }
 }
