@@ -8,7 +8,7 @@ export interface IUser extends Document {
   email: string,
   password: string,
   avatar: {
-    public_id: string;    
+    public_id: string;
     url: string;
   },
   role: string,
@@ -47,12 +47,12 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     default: false,
   },
   courses: [
-    {courseId: String}
+    { courseId: String }
   ]
-}, {timestamps:true})
+}, { timestamps: true })
 
-userSchema.pre<IUser>("save",  async function(next) {
-  if(!this.isModified("password")) {
+userSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) {
     next()
   }
   this.password = await bcrypt.hash(this.password, 10)
@@ -60,21 +60,21 @@ userSchema.pre<IUser>("save",  async function(next) {
 })
 
 
-userSchema.methods.signRefreshToken = function() {
-  return jwt.sign({id: this._id}, process.env.REFRESH_TOKEN_SECRET || "", {
+userSchema.methods.signRefreshToken = function () {
+  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_SECRET || "", {
     expiresIn: "3d"
   })
 }
 
 
-userSchema.methods.signAccessToken = function() {
-  return jwt.sign({id: this._id}, process.env.ACCESS_TOKEN_SECRET || "", {
+userSchema.methods.signAccessToken = function () {
+  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN_SECRET || "", {
     expiresIn: "5m"
   })
 }
 
 
-userSchema.methods.comparePassword = async function(password: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
   const testedPassword = await bcrypt.compare(password, this.password)
   return testedPassword
 }

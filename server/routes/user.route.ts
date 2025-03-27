@@ -5,7 +5,7 @@ const userRouter = express.Router()
 
 userRouter.post("/register", registrationUser)
 userRouter.post("/login", LoginUser)
-userRouter.get("/logout", isAuthenticated as any, LogoutUser as any)
+userRouter.get("/logout" , isAuthenticated as any, LogoutUser as any)
 userRouter.post("/activateUser", activateUser)
 userRouter.get("/me", isAuthenticated as any, getUserInfo as any)
 userRouter.put("/update-user-info", isAuthenticated as any, updateUserInfo as any)

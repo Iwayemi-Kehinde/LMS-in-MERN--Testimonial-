@@ -10,7 +10,7 @@ import { redis } from '../utils/redis'
 import { CustomRequest } from '../middleware/auth'
 
 
-interface RegistrationBody {
+interface IRegistrationBody {
   name: string,
   email: string,
   password: string,
@@ -18,12 +18,12 @@ interface RegistrationBody {
 }
 
 export const registrationUser = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, email, password } = req.body as RegistrationBody
-  const isExist = await userModel.findOne({ email })
-  if (isExist) {
+  const { name, email, password } = req.body as IRegistrationBody
+  const isEmailExist = await userModel.findOne({ email })
+  if (isEmailExist) {
     return next(new ErrorHandler("Email already exists", 400))
   }
-  const user: RegistrationBody = {
+  const user: IRegistrationBody = {
     name,
     email,
     password
@@ -31,7 +31,7 @@ export const registrationUser = async (req: Request, res: Response, next: NextFu
 
   const activationToken = createActivationToken(user)
 
-  
+
   const data = { user: { name: user.name, email: user.email, activationToken: activationToken.activationCode } }
   try {
     await sendActivationMail(data.user.name, data.user.email, data.user.activationToken)
@@ -56,11 +56,11 @@ export const createActivationToken = (user: any): IActivationToken => {
   return { activationCode, activationToken }
 }
 
-
 interface IActivationRequest {
   activationCode: string,
-  activationToken: string
+  activationToken: string 
 }
+
 export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
   const { activationCode, activationToken } = req.body as IActivationRequest
   const newUser = jwt.verify(activationToken, process.env.ACCESS_TOKEN as Secret) as { activationCode: string, user: IUser }

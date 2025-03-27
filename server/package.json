@@ -8,7 +8,7 @@
   },
   "author": "Kehinde Iwayemi",
   "license": "ISC",
-  "dependencies": {
+  "dependencies":  {
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",

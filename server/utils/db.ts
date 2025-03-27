@@ -1,14 +1,14 @@
 import mongoose from "mongoose" 
 require("dotenv").config({})
 
-// const dbUrl = process.env.MONOGO_URI || "mongodb://localhost:27017/lms"
+const dbUrl: string = process.env.MONOGO_URI || ""
 
 export const connectDB = async () => {
   try {
-    const data = await mongoose.connect('mongodb://127.0.0.1:27017/lms')
-    console.log(`Database connected to ${data.connection.host} successfully`)
+    const data = await mongoose.connect(dbUrl)
+    console.log(`Database connected to ${data.connection.host} successfully!`)
   } catch (error: any) {
-    console.log(error)
+    console.log("Error connecting to MongoDB: " + error.message)
     setTimeout(connectDB, 5000)
   }
 }
