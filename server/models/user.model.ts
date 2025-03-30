@@ -1,9 +1,9 @@
 require("dotenv").config()
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
-export interface IUser extends Document {
+export interface IUser extends mongoose.Document {
   name: string,
   email: string,
   password: string,
@@ -19,7 +19,7 @@ export interface IUser extends Document {
   signRefreshToken: () => string,
 }
 
-const userSchema: Schema<IUser> = new mongoose.Schema({
+const userSchema: mongoose.Schema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please enter your name"]
@@ -46,9 +46,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  courses: [
-    { courseId: String }
-  ]
+  courses: [{ type: String }]
 }, { timestamps: true })
 
 userSchema.pre<IUser>("save", async function (next) {
@@ -56,8 +54,17 @@ userSchema.pre<IUser>("save", async function (next) {
     next()
   }
   this.password = await bcrypt.hash(this.password, 10)
-  next()
 })
+
+
+const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || ""
+
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || ""
+
+
+if(!refreshTokenSecret || !accessTokenSecret) {
+  throw new Error("Please provide JWT secret [They are missing in the environment variables]")
+}
 
 
 userSchema.methods.signRefreshToken = function () {
@@ -74,12 +81,14 @@ userSchema.methods.signAccessToken = function () {
 }
 
 
-userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function(password:string):Promise<boolean> {
   const testedPassword = await bcrypt.compare(password, this.password)
-  return testedPassword
+  return testedPassword;
 }
 
 
-const userModel: Model<IUser> = mongoose.model("User", userSchema)
+const userModel = mongoose.model("User", userSchema)
 
 export default userModel
+
+
