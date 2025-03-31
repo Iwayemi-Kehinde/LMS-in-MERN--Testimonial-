@@ -304,12 +304,15 @@ export const updateUserInfo = async (req: Request, res: Response, next: NextFunc
         return next(new ErrorHandler("Email already exist", 400))
       }
       user.email = email
+      user.name = name
       await user.save()
       await redis.set(user._id, JSON.stringify(user))
       res.status(201).json({
         success: true,
         user
       })
+    } else {
+      return next(new ErrorHandler("All fields are required", 400))
     }
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 500))
