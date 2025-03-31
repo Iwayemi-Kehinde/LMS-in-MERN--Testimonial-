@@ -79,7 +79,7 @@ userSchema.methods.signAccessToken = function () {
     expiresIn: "5m"
   })
 }
-
+ 
 
 userSchema.methods.comparePassword = async function(password:string):Promise<boolean> {
   const testedPassword = await bcrypt.compare(password, this.password)
