@@ -5,6 +5,7 @@ import userModel, { IUser } from "../models/user.model"
 import jwt, { JwtPayload, Secret } from "jsonwebtoken"
 import nodemailer, { Transporter } from "nodemailer"
 import { redis } from "../utils/redis"
+import cloudinary from "cloudinary"
 
 interface IRegistrationBody {
   name: string,
@@ -220,7 +221,7 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
   try {
     const id = req.user?._id as any
     const userJson = await redis.get(id)
-    if(userJson) {
+    if (userJson) {
       const user = JSON.parse(userJson)
       res.status(200).json({
         success: true,
@@ -318,3 +319,78 @@ export const updateUserInfo = async (req: Request, res: Response, next: NextFunc
     return next(new ErrorHandler(error.message, 500))
   }
 }
+
+interface IUpdateUserPassword {
+  oldPassword: string,
+  newPassword: string
+}
+
+export const updateUserPasssword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { oldPassword, newPassword } = req.body as IUpdateUserPassword
+    const id = req.user?._id || "" as any
+    if (oldPassword && newPassword) {
+      const user: any = await userModel.findById(id)
+      const isOldPasswordCorrect = await user?.comparePassword(oldPassword)
+      if (!isOldPasswordCorrect) {
+        return next(new ErrorHandler("Old password incorrect", 400))
+      }
+      user.password = newPassword
+      await user.save()
+      await redis.set(user._id, JSON.stringify(user))
+      res.status(200).json({
+        success: true,
+        message: "Updated success",
+        user
+      })
+    } else {
+      return next(new ErrorHandler("All fields are required", 400))
+    }
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+}
+
+interface IUpdateProfilePicure {
+  avatar: string
+}
+
+export const updateProfilePicture = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { avatar } = req.body as IUpdateProfilePicure
+    const id = req.user?.id || ""
+    const user: any = await userModel.findById(id)
+    if (avatar && user) {
+      if (user?.avatar?.public_id) {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id)
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+          folder: "avatars",
+          width: 150
+        })
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url
+        }
+      } else {
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+          width: 150,
+          folder: "avatars"
+        })
+        user.avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url
+        }
+      }
+    }
+    await user.save()
+    await redis.set(id, JSON.stringify(user))
+    res.status(200).json({
+      success: true,
+      message: "Profile picture updated successfully!",
+      user
+    })
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+}
+
