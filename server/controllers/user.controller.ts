@@ -393,4 +393,3 @@ export const updateProfilePicture = async (req: Request, res: Response, next: Ne
     return next(new ErrorHandler(error.message, 500))
   }
 }
-

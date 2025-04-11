@@ -46,7 +46,7 @@ const userSchema: mongoose.Schema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  courses: [{ type: String }]
+  courses: [{ courseId: String }]
 }, { timestamps: true })
 
 userSchema.pre<IUser>("save", async function (next) {

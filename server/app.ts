@@ -4,6 +4,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import userRouter from "./routes/user.route"
 import { ErrorHandler } from "./utils/ErrorHandler"
+import courseRouter from "./routes/course.route"
 export const app = express()
 
 //body parser
@@ -28,6 +29,9 @@ app.get("/test", (req: Request, res: Response, next: NextFunction) => {
 
 //user router
 app.use("/api/v1", userRouter)
+
+//course router
+app.use("/api/v1", courseRouter)
 
 //unknown route
 app.all("*", (req:Request, res:Response, next:NextFunction) => {

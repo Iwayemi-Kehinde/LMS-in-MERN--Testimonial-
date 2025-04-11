@@ -11,7 +11,7 @@ interface IReview extends Document {
   user: IUser;
   rating: number;
   comment: string;
-  commentReplies: IComment[];
+  commentReplies?: IComment[];
 }
 
 interface ILink extends Document {
@@ -68,7 +68,7 @@ const linkSchema = new Schema<ILink>({
   url: String,
 });
 
-const commentSchema = new Schema<IComment>(
+const questionsSchema = new Schema<IComment>(
   {
     user: Object,
     question: String,
@@ -86,7 +86,7 @@ const courseDataSchema = new Schema<ICourseData>({
   videoPlayer: String,
   links: [linkSchema],
   suggestion: String,
-  questions: [commentSchema],
+  questions: [questionsSchema],
 });
 
 const courseSchema = new Schema<ICourse>(
