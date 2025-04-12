@@ -208,13 +208,12 @@ export const addAnswer = async (req: Request, res: Response, next: NextFunction)
         name: question.user.name,
         title: courseContent.title
       }
+     
       const transport: Transporter = nodemailer.createTransport({
-        port: 587,
-        service: "smtp.gmail.com",
-        secure: false,
+        service: "gmail",
         auth: {
-          user: process.env.EMAIL,
-          pass: process.env.EMAIL_PASS
+          user: process.env.EMAIL_PASS,
+          pass: process.env.PASSWORD
         }
       })
 
