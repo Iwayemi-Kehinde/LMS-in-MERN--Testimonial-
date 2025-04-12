@@ -290,8 +290,6 @@ interface IAddReplyToReview {
   courseId: string
 }
 
-
-
 export const addReplyToReview = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {comment, reviewId, courseId} = req.body as IAddReplyToReview
@@ -307,9 +305,9 @@ export const addReplyToReview = async (req: Request, res: Response, next: NextFu
       user: req.user,
       comment
     }
-    review.commentReplies?.push(data)
+    review?.commentReplies?.push(data)
     await course.save()
-    res.status(200).json({
+    res.status(200).json({ 
       success: true,
       course,
     });
@@ -317,5 +315,3 @@ export const addReplyToReview = async (req: Request, res: Response, next: NextFu
     return next(new ErrorHandler(error.message, 500))
   }
 }
-
-

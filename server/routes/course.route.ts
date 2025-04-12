@@ -19,7 +19,7 @@ courseRouter.put("/add-answer", isAuthenticated, addAnswer)
 
 courseRouter.put("/add-review/:id", isAuthenticated, addReview)
 
-courseRouter.post("/add-replytoreview", isAuthenticated, addReplyToReview)
+courseRouter.post("/add-reply", isAuthenticated, authorizeRole("admin"), addReplyToReview)
 
 
 export default courseRouter
