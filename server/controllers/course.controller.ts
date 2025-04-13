@@ -5,6 +5,7 @@ import { ErrorHandler } from "../utils/ErrorHandler"
 import { redis } from "../utils/redis"
 import mongoose from "mongoose"
 import nodemailer, { Transporter } from "nodemailer"
+import { notificationModel } from "../models/notification.model"
 
 export const createCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -153,6 +154,11 @@ export const addQuestion = async (req: Request, res: Response, next: NextFunctio
       questionReplies: []
     }
     courseContent?.questions.push(newQuestion)
+    await notificationModel.create({
+      userId: req.user?._id,
+      title: "New Question",
+      message: "You have a new Question in " + courseContent?.title,
+    })
     await course.save()
     res.status(200).json({
       success: true,
@@ -202,7 +208,11 @@ export const addAnswer = async (req: Request, res: Response, next: NextFunction)
     await course?.save()
 
     if (req.user?._id === question.user._id) {
-      //Create a notification
+      await notificationModel.create({
+        userId: req.user?._id,
+        title: "New question reply recieved",
+        message: "You have a new question reply in " + courseContent.title
+      })
     } else {
       const data = {
         name: question.user.name,

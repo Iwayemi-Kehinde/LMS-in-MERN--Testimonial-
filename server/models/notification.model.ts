@@ -18,7 +18,7 @@ const notificationSchema = new Schema<INotification>({
   }, 
   status: {
     type: String,
-    required: true
+    // required: true
   }, 
   userId: {
     type: String,
