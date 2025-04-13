@@ -17,24 +17,26 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
     const { courseId, payment_info } = req.body as ICreateOrder
     const user: any = await userModel.findById(req.user?._id)
     const isCourseExists = user?.courses.some((course: { courseId: string }) => course.courseId === courseId)
+
     if (isCourseExists) {
       return next(new ErrorHandler("Course already exists", 400))
     }
     const course: any = await CourseModel.findById(courseId)
+
     if (!course) {
       return next(new ErrorHandler("Course not found", 404))
     }
     const data: any = {
       courseId: course._id,
-      userId: user._id
+      userId: user._id,
+      payment_info
     }
-    const order = await OrderModel.create(data)
     const mailData = {
       order: {
         id: course._id.slice(0, 6),
         name: course.name,
         price: course.price,
-        date: new Date()
+        date: new Date().toLocaleDateString("en-US", {year:"numeric", month:"long",day:"numeric"})
       }
     }
     const transporter = nodemailer.createTransport({
@@ -64,6 +66,9 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
       title: "New Order",
       message: `You have a new order from ${course?.name}`
     })
+    const order = await OrderModel.create(data)
+    course.purchased ? course.purchased += 1 : course.purchased
+    await course.save()
     res.status(201).json({
       success: true,
       order,
