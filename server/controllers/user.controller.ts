@@ -393,3 +393,56 @@ export const updateProfilePicture = async (req: Request, res: Response, next: Ne
     return next(new ErrorHandler(error.message, 500))
   }
 }
+
+
+//ONLY ADMIN
+
+
+export const getAllUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await userModel.find({}).sort({ createdAt: -1 })
+    res.status(200).json({
+      success: true,
+      user
+    })
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+}
+
+
+export const updateUserRole = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id, role } = req.body
+    const user = await userModel.findById(id)
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404))
+    }
+    user.role = role
+    await user?.save()
+    res.status(200).json({
+      success: true,
+      user
+    })
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+}
+
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params
+    const user = await userModel.findById(id)
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404))
+    }
+    await userModel.deleteOne({ id })
+    await redis.del(id)
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully!"
+    })
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+}

@@ -79,3 +79,17 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
     return next(new ErrorHandler(error.message, 500))
   }
 }
+
+
+//Only admin
+export const getAllOrder = async (req:Request, res:Response, next:NextFunction) => {
+  try {
+     const order = await OrderModel.find({}).sort({createdAt: -1})
+     res.status(200).json({
+      success:true,
+      order
+     })
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500))
+  }
+}
