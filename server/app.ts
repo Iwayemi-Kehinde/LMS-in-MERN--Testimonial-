@@ -7,6 +7,7 @@ import { ErrorHandler } from "./utils/ErrorHandler"
 import courseRouter from "./routes/course.route"
 import orderRouter from "./routes/order.route"
 import notificationRouter from "./routes/notification.route"
+import analyicsRouter from "./routes/analytics.route"
 export const app = express()
 
 //body parser
@@ -40,6 +41,9 @@ app.use("/api/v1", orderRouter)
 
 //notification router
 app.use("/api/v1", notificationRouter)
+
+//analytics router
+app.use("/api/v1", analyicsRouter)
 
 //unknown route
 app.all("*", (req:Request, res:Response, next:NextFunction) => {
