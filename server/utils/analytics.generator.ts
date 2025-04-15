@@ -18,9 +18,9 @@ export async function generateLast12MonthsDate<T extends Document>(
             , currentDate.getDate() - i * 28
         )
         const startDate = new Date(
-            currentDate.getFullYear()
-            , currentDate.getMonth()
-            , currentDate.getDate() - 28
+            endDate.getFullYear()
+            , endDate.getMonth()
+            , endDate.getDate() - 28
         )
         const monthYear = endDate.toLocaleString("default", {
             day: "numeric",
