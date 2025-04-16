@@ -8,6 +8,7 @@ import courseRouter from "./routes/course.route"
 import orderRouter from "./routes/order.route"
 import notificationRouter from "./routes/notification.route"
 import analyicsRouter from "./routes/analytics.route"
+import LayoutRouter from "./routes/layout.route"
 export const app = express()
 
 //body parser
@@ -44,6 +45,9 @@ app.use("/api/v1", notificationRouter)
 
 //analytics router
 app.use("/api/v1", analyicsRouter)
+
+//layout router
+app.use("/api/v1", LayoutRouter)
 
 //unknown route
 app.all("*", (req:Request, res:Response, next:NextFunction) => {
