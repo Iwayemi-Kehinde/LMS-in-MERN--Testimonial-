@@ -23,7 +23,7 @@ export const getUserAnalytics = async (req:Request, res:Response, next: NextFunc
 
 export const getOrderAnalytics = async (req:Request, res:Response, next: NextFunction) => {
   try {
-    const orders = await generateLast12MonthsDate(OrderModel as any)
+    const orders = await generateLast12MonthsDate(OrderModel)
     res.status(200).json({
       success:true,
       orders
@@ -36,7 +36,7 @@ export const getOrderAnalytics = async (req:Request, res:Response, next: NextFun
 
 export const getCourseAnalytics = async (req:Request, res:Response, next: NextFunction) => {
   try {
-    const course = await generateLast12MonthsDate(CourseModel as any)
+    const course = await generateLast12MonthsDate(CourseModel)
     res.status(200).json({
       success:true,
       course
