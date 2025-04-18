@@ -11,9 +11,10 @@ export const isAuthenticated = async (req:Request, res:Response, next:NextFuncti
   const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN as string) as JwtPayload
   const user = await redis.get(decoded.id) 
   if(!user) {
-    return next(new ErrorHandler("User not found", 500))
+    return next(new ErrorHandler("Please Login to access this resource", 400))
   }
   req.user = JSON.parse(user)
+
   next()
 }
 
@@ -27,3 +28,4 @@ export const authorizeRole = (...roles: string[]) => {
     next()
   }
 }
+

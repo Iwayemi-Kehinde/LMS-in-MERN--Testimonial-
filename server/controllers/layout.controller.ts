@@ -68,7 +68,6 @@ export const editLayout =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { type } = req.body;
-
       if (type === "Banner") {
         const bannerData: any = await Layout.findOne({ type: "Banner" })
         const { image, title, subTitle } = req.body
@@ -133,9 +132,9 @@ export const editLayout =
 // get layout by type
 export const getLayoutByType =
   async (req: Request, res: Response, next: NextFunction) => {
-    const { type } = req.params
-    const layout = await Layout.findOne({ type })
     try {
+      const { type } = req.params
+      const layout = await Layout.findOne({ type })
       res.status(200).json({
         success: true,
         layout
@@ -144,3 +143,6 @@ export const getLayoutByType =
       return next(new ErrorHandler(error.message, 500))
     }
   }
+
+
+

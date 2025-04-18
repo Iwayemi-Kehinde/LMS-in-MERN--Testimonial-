@@ -77,7 +77,7 @@ export const getSingleCourse = async (req: Request, res: Response, next: NextFun
       })
     } else {
       const course = await CourseModel.findById(req.params.id).select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links")
-      await redis.set(req.params.id, JSON.stringify(course))
+      await redis.set(req.params.id, JSON.stringify(course), "EX", "604800")
       res.status(200).json({
         success: true,
         course

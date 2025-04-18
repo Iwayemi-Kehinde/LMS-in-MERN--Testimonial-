@@ -183,7 +183,7 @@ export const updateAccessToken = async (req: Request, res: Response, next: NextF
     }
     const session = await redis.get(decoded.id)
     if (!session) {
-      return next(new ErrorHandler("could not refresh token", 401))
+      return next(new ErrorHandler("Please Login to access this resource!", 401))
     }
     const user = JSON.parse(session)
 
@@ -193,7 +193,7 @@ export const updateAccessToken = async (req: Request, res: Response, next: NextF
 
     res.cookie("access_token", accessToken, {
       expires: new Date(Date.now() + 5 * 60 * 1000),
-      httpOnly: true,
+      httpOnly: true, 
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production"
     })
@@ -204,6 +204,8 @@ export const updateAccessToken = async (req: Request, res: Response, next: NextF
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production"
     })
+
+    await redis.set(user._id, JSON.stringify(user), "EX", "604800") // 7 Days
 
     req.user = user
 
