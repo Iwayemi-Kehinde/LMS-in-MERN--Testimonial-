@@ -1,1 +1,0 @@
-How to make use of dark mode and light mode using tailwind CSS
