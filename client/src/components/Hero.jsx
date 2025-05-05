@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import hero from "../assets/hero-img.png"
+import { FaSearch } from "react-icons/fa";
 
 const Hero = () => {
   return (
@@ -12,11 +14,15 @@ const Hero = () => {
           Empower your ideas with blockchain-integrated fullstack technology. Modern, scalable, and ready for the future.
         </HeroText>
         <HeroButton>Get Started</HeroButton>
+        <SearchSection>
+            <input type="text" placeholder="Enter a search term"/>
+            <FaSearch size={25} color="white" style={{cursor: "pointer", background: "purple", width: "40px", padding: "5px 0", borderRadius: "4px"}}/>
+        </SearchSection>
       </HeroContent>
 
       <HeroImageWrapper>
         {/* Optional image - You can replace src with any illustration or SVG */}
-        <HeroImage src="https://via.placeholder.com/500x350?text=Illustration" alt="Hero Illustration" />
+        <HeroImage src={hero} alt="Hero Illustration" />
       </HeroImageWrapper>
     </HeroContainer>
   );
@@ -29,10 +35,11 @@ const HeroContainer = styled.section`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5rem 8%;
+  padding: 5rem 2%;
   background: white;
   color: #2d2d2d;
   background-color:rgb(234, 234, 234);
+  width: 100%;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -40,6 +47,24 @@ const HeroContainer = styled.section`
     padding: 3rem 5%;
   }
 `;
+
+const SearchSection = styled.div`
+background: white;
+width: 60%;
+height: 36px;
+margin-top: 40px;
+display: flex;
+align-items: center;
+padding: 4px;
+
+input {
+  padding: 4px;
+  outline: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+`
 
 const HeroContent = styled.div`
   max-width: 600px;
@@ -91,6 +116,13 @@ const HeroImageWrapper = styled.div`
 
 const HeroImage = styled.img`
   max-width: 100%;
-  height: auto;
-  border-radius: 1rem;
+  height: 400px;
+  border-top-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  border-top-right-radius: 0
+  border-bottom-right-radius: 0;
+
+  @media (max-width: 768px) {
+    height: auto;
+  }
 `;
