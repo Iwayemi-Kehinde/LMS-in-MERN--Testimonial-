@@ -15,13 +15,11 @@ const Hero = () => {
         </HeroText>
         <HeroButton>Get Started</HeroButton>
         <SearchSection>
-            <input type="text" placeholder="Enter a search term"/>
+            <input type="text" placeholder="Explore Available Course"/>
             <FaSearch size={25} color="white" style={{cursor: "pointer", background: "purple", width: "40px", padding: "5px 0", borderRadius: "4px"}}/>
         </SearchSection>
       </HeroContent>
-
       <HeroImageWrapper>
-        {/* Optional image - You can replace src with any illustration or SVG */}
         <HeroImage src={hero} alt="Hero Illustration" />
       </HeroImageWrapper>
     </HeroContainer>

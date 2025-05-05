@@ -65,6 +65,7 @@ const Menu = styled.div`
   display: flex;
   gap: 2rem;
   align-items: center;
+  z-index: 200000000;
 
   @media (max-width: 768px) {
     flex-direction: column;
