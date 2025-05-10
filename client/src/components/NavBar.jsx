@@ -8,7 +8,9 @@ const Navbar = () => {
 
   return (
     <Nav>
-      <Logo>ELearning</Logo>
+        <LogoLink to="/">
+          ELearning
+        </LogoLink>
 
       <Hamburger onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? <FaTimes /> : <FaBars />}
@@ -21,7 +23,7 @@ const Navbar = () => {
         <MenuLink to="/courses">Courses</MenuLink>
         <MenuLink to="/faq">FAQ</MenuLink>
         <MenuLink to="/auth">
-          <FaUser size={"25px"}/>
+          <FaUser size={"25px"} />
         </MenuLink>
       </Menu>
     </Nav>
@@ -32,7 +34,12 @@ export default Navbar;
 
 
 
-
+const LogoLink = styled(Link)`
+font-size: 1.8rem;
+font-weight: bold;
+text-decoration: none;
+color: white;
+`
 const Nav = styled.nav`
   padding: 0 2rem;
   height: 70px;
